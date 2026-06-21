@@ -57,7 +57,7 @@ def train_step():
     h, z = model.initial(BATCH_SIZE)
     total_loss = 0.0
 
-    for t in range(SEQ_LEN):
+    for t in range(SEQ_LEN):    #loop to calculate total loss
         obs_t = obs[:, t]  # (B, 3, 64, 64)
         act_t = act[:, t]  # (B, action_dim)
 
@@ -75,13 +75,13 @@ def train_step():
     return total_loss.item()
 
 
-# --- Collect initial data ---
+#collect initial data
 print(f"Collecting {INIT_EPISODES} random episodes...")
 for i in range(INIT_EPISODES):
     collect_episode()
     print(f"  Episode {i + 1}/{INIT_EPISODES}")
 
-# --- Training loop ---
+#traiing loop
 print(f"\nTraining for {TRAIN_STEPS} steps...")
 for step in range(TRAIN_STEPS):
     loss = train_step()
@@ -92,4 +92,10 @@ for step in range(TRAIN_STEPS):
     if step % COLLECT_EVERY == 0:
         collect_episode()
 
+    if step % 500 == 0 and step > 0:
+        torch.save(model.state_dict(), f"checkpoint_{step}.pt")
+        print(f"  Saved checkpoint_{step}.pt")
+
+torch.save(model.state_dict(), "checkpoint.pt")
+print("Saved checkpoint.pt")
 print("Done.")
