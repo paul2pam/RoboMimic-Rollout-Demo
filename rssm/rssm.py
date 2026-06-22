@@ -92,7 +92,7 @@ class RSSM(nn.Module):
         h = torch.zeros(batch_size, self.deter_dim, device=device)
         z = torch.zeros(batch_size, self.discrete_dim, device=device)
         return h, z
-
+#testing config
     def observation_step(self, h, z, a, e):
         h_new = self.sequence(h, z, a)
         post_logits = self.representation(e, h_new)  # posterior: uses real obs
