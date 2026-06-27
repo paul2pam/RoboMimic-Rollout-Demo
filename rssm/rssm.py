@@ -74,14 +74,14 @@ class SequenceModel(nn.Module):     #Not true to paper, this uses a regular GRUc
 
 class RSSM(nn.Module):
 
-    def __init__(self, embed_dim, hidden_dim, deter_dim, discrete_dim, action_dim):
+    def __init__(self, embed_dim, hidden_dim, deter_dim, discrete_dim, action_dim, in_channels=3, obs_size=64):
         super().__init__()
         self.sequence        = SequenceModel(action_dim, deter_dim, discrete_dim, hidden_dim)
         self.dynamics        = Prior(deter_dim, discrete_dim, hidden_dim)
         self.representation  = Posterior(embed_dim, deter_dim, discrete_dim, hidden_dim)
 
-        self.encoder         = Encoder(embed_dim)
-        self.decoder         = Decoder(deter_dim, discrete_dim)
+        self.encoder         = Encoder(embed_dim, in_channels=in_channels, obs_size=obs_size)
+        self.decoder         = Decoder(deter_dim, discrete_dim, out_channels=in_channels)
 
         self.deter_dim = deter_dim
         self.discrete_dim = discrete_dim
@@ -105,10 +105,11 @@ class RSSM(nn.Module):
         z_new = self.dynamics(h_new)
         return h_new, z_new
     
-    def kl_loss(self, prior_logits, post_logits):
+    def kl_loss(self, prior_logits, post_logits, free_bits=1.0):
         p = F.softmax(post_logits, dim=-1)
         q = F.softmax(prior_logits, dim=-1)
-        return (p * (p.log() - q.log())).sum(-1).mean()
+        kl = (p * (p.log() - q.log())).sum(-1).mean()
+        return torch.clamp(kl, min=free_bits)
 
     def decode(self, h, z):
         return self.decoder(h, z)

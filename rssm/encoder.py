@@ -2,15 +2,16 @@ import torch.nn as nn
 import torch
 
 class Encoder(nn.Module):
-    def __init__(self, embed_dim):
+    def __init__(self, embed_dim, in_channels=3, obs_size=64):
         super().__init__()
-        self.in_channels = 3                #3 if RGB, 1 if grayscale TODO:un-hardcode
-        self.kernel_size = 4                #this and stride are just by default TODO:un-hardcode
-        self.stride = 2                     #TODO:un-hardcode
-        self.embed_dim = embed_dim  
+        self.stride = 2
+        self.embed_dim = embed_dim
+
+        # 4 stride-2 convs divide spatial dims by 16
+        flat_size = (obs_size // 16) ** 2 * 256
 
         self.convs = nn.Sequential(
-            nn.Conv2d(3, 32, 3, stride=self.stride, padding=1),
+            nn.Conv2d(in_channels, 32, 3, stride=self.stride, padding=1),
             nn.SiLU(),
             nn.Conv2d(32, 64, 3, stride=self.stride, padding=1),
             nn.SiLU(),
@@ -19,10 +20,8 @@ class Encoder(nn.Module):
             nn.Conv2d(128, 256, 3, stride=self.stride, padding=1),
             nn.SiLU(),
             nn.Flatten(),
-            nn.Linear(in_features=4096, out_features=self.embed_dim)
-        )    
+            nn.Linear(in_features=flat_size, out_features=self.embed_dim)
+        )
 
-    def forward(self, x): #x is the observation, and comes in a raw pixel tensor (B, C, H, W)
-        e = self.convs(x)
-        return e
-    
+    def forward(self, x):  # x: (B, C, H, W)
+        return self.convs(x)

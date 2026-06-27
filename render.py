@@ -33,7 +33,7 @@ action = torch.zeros(1, ACTION_DIM, device=device)
 with torch.no_grad():
     h, z = model.initial(1)
     e = model.encoder(obs)
-    h, z = model.observation_step(h, z, action, e)
+    h, z, _, _ = model.observation_step(h, z, action, e)
 
     frames = []
     for _ in range(IMAGINE_STEPS):

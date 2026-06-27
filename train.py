@@ -20,6 +20,7 @@ SEQ_LEN    = 50   # consecutive real frames per training sequence (not imaginati
 BATCH_SIZE = 16
 LR          = 1e-4
 KL_WEIGHT   = 0.1
+FREE_BITS   = 1.0  # minimum KL per step — prevents posterior collapse
 TRAIN_STEPS = 500
 
 # --- Data collection ---
@@ -68,7 +69,7 @@ def train_step():
 
         recon = model.decode(h, z)
         recon_loss += F.mse_loss(recon, obs_t)
-        kl += model.kl_loss(prior_logits, post_logits)
+        kl += model.kl_loss(prior_logits, post_logits, FREE_BITS)
 
     recon_loss = recon_loss / SEQ_LEN
     kl = kl / SEQ_LEN
