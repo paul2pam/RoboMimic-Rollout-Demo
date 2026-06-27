@@ -3,3 +3,4 @@ gymnasium[box2d]==0.29.1
 numpy==1.26.4
 imageio==2.37.3
 pillow==12.2.0
+matplotlib
