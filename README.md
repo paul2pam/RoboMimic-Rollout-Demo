@@ -9,10 +9,10 @@ The world model learns to imagine future wrist-cam frames from a 7-DOF robot arm
 Ground truth (left) vs. model imagination (right) after 20k training steps:
 
 **Latest rollout**
-<video src="rollout.mp4" controls width="640"></video>
+![rollout](rollout_preview.gif)
 
 **First rollout**
-<video src="first_rollout.mp4" controls width="640"></video>
+![first rollout](first_rollout_preview.gif)
 
 ## Architecture
 
